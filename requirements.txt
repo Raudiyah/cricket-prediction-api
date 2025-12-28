@@ -3,8 +3,8 @@ flask-cors
 torch
 torchvision
 numpy
-opencv-contrib-python-headless
-mediapipe
+opencv-python-headless
+mediapipe==0.10.11
 mysql-connector-python
 reportlab
 gdown
