@@ -49,7 +49,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # ---------- Model Download & Load ----------
-FILE_ID = 'https://drive.google.com/file/d/1RrSgzWyjLYDrly46wNF-NHQXGWMIEgL_/view?usp=sharing'
+FILE_ID = '1RrSgzWyjLYDrly46wNF-NHQXGWMIEgL_' # Sirf ID rakhein
 GD_URL = f'https://drive.google.com/uc?id={FILE_ID}'
 MODEL_PATH = "best_model.pth"
 
@@ -61,16 +61,19 @@ def download_model():
         except Exception as e:
             print(f"Download failed: {e}")
 
+# Model Load karne ka sahi tarika
 try:
-    download_model() # Pehle download check karein
+    download_model()
     model = make_model(len(CLASS_NAMES))
-    state = torch.load(MODEL_PATH, map_location=DEVICE)
-    if isinstance(state, dict) and not isinstance(state, torch.nn.Module):
-        model.load_state_dict(state)
-    else:
-        model = state
-    model = model.to(DEVICE)
-    model.eval()
+    if os.path.exists(MODEL_PATH):
+        state = torch.load(MODEL_PATH, map_location=DEVICE)
+        if isinstance(state, dict) and not isinstance(state, torch.nn.Module):
+            model.load_state_dict(state)
+        else:
+            model = state
+        model = model.to(DEVICE)
+        model.eval()
+        print("Model loaded successfully!")
 except Exception as e:
     print(f"Error loading model: {e}")
     model = None
@@ -86,10 +89,12 @@ DB_CONFIG = {
 
 # ---------- Model ----------
 def make_model(num_classes):
-    model = torchvision.models.video.r3d_18(pretrained=False)
+    model = torchvision.models.video.r3d_18(weights=None) # pretrained=False ki jagah weights=None
     in_features = model.fc.in_features
     model.fc = nn.Linear(in_features, num_classes)
     return model
+
+
 
 try:
     model = make_model(len(CLASS_NAMES))
@@ -663,3 +668,4 @@ def save_eval():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+
