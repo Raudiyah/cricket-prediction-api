@@ -8,3 +8,4 @@ mediapipe
 mysql-connector-python
 reportlab
 gdown
+gunicorn
