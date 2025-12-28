@@ -25,6 +25,7 @@ from reportlab.lib.colors import Color
 
 # Pose library
 import mediapipe as mp
+from mediapipe.python.solutions import pose as mp_pose
 import math
 
 # ---------- Config ----------
@@ -189,7 +190,7 @@ def predict_video(video_path):
     return CLASS_NAMES[top_idx], probs, frames
 
 # ---------- Pose and scoring helpers ----------
-mp_pose = mp.solutions.pose
+
 
 # landmark indices for MediaPipe pose
 LS, RS, LW, RW, LH, RH, NOSE = 11, 12, 15, 16, 23, 24, 0
@@ -668,4 +669,5 @@ def save_eval():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
