@@ -1,5 +1,6 @@
 # app.py 
 import os
+import gdown
 from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for
 from werkzeug.utils import secure_filename
 import torch
@@ -45,13 +46,42 @@ CLASS_NAMES = ["Cover Drive", "Lofted", "Square Cut", "Pull", "Straight Drive"]
 NUM_FRAMES = 16
 FRAME_SIZE = 112
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+# ---------- Model Download & Load ----------
+FILE_ID = 'https://drive.google.com/file/d/1RrSgzWyjLYDrly46wNF-NHQXGWMIEgL_/view?usp=sharing'
+GD_URL = f'https://drive.google.com/uc?id={FILE_ID}'
 MODEL_PATH = "best_model.pth"
 
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        print("Model file not found. Downloading from Google Drive...")
+        try:
+            gdown.download(GD_URL, MODEL_PATH, quiet=False)
+        except Exception as e:
+            print(f"Download failed: {e}")
+
+try:
+    download_model() # Pehle download check karein
+    model = make_model(len(CLASS_NAMES))
+    state = torch.load(MODEL_PATH, map_location=DEVICE)
+    if isinstance(state, dict) and not isinstance(state, torch.nn.Module):
+        model.load_state_dict(state)
+    else:
+        model = state
+    model = model.to(DEVICE)
+    model.eval()
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
+    
+    
+# ---------- Database Config ----------
 DB_CONFIG = {
-    'user': 'root',
-    'password': 'admin123',
-    'host': 'localhost',
-    'database': 'pro'
+    'user': 'your_external_db_user', 
+    'password': 'your_external_db_password',
+    'host': 'your_external_db_host', 
+    'database': 'your_external_db_name'
 }
 
 # ---------- Model ----------
@@ -631,4 +661,6 @@ def save_eval():
     return jsonify({"status": "ok", "pdf_path": pdf_path})
 
 if __name__ == '__main__':
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    # Render ke liye host 0.0.0.0 aur Port dynamic hona chahiye
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)
