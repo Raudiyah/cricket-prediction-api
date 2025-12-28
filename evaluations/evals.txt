@@ -1,0 +1,5 @@
+{'rating': 'Good', 'comment': 'kguuuuu'}
+{'rating': 'Excellent', 'comment': 'okay'}
+{'rating': 'Average', 'comment': 'Good work'}
+{'rating': 'Excellent', 'comment': ''}
+{'rating': 'Poor', 'comment': ''}

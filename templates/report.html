@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF--8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ProCricket Trials</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar */
+        .navbar { background-color: #000 !important; }
+        .navbar-nav .nav-item { margin-right: 15px; }
+        .navbar-nav .nav-link {
+            color: #fff;
+            position: relative;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link:focus { color: #28a745; }
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #28a745;
+            transition: width 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover::after, .navbar-nav .nav-link:focus::after { width: 100%; }
+        .navbar-toggler { filter: invert(1); }
+
+        /* Layout */
+        .wrap {
+            display: flex;
+            flex-wrap: wrap; /* Added for responsiveness */
+            gap: 20px;
+            padding: 25px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        .left {
+            width: 320px;
+            background: linear-gradient(135deg, #000000ff, #000000ff);
+            color: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease-in-out;
+            flex-shrink: 0;
+        }
+        .left:hover { transform: translateY(-5px); }
+        .right { flex: 1; min-width: 300px; } /* Added min-width */
+
+        /* Left Sidebar Elements */
+        .left .image-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .left .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top;
+        }
+        .left h2 { margin: 15px 0 5px; font-size: 24px; }
+        .left p { margin: 0; font-size: 14px; color: #ffffffff; }
+        .left .status { margin-top: 15px; font-weight: 700; font-size: 18px; }
+        .left .status-text { font-size: 20px; margin-top: 8px; font-weight: 600; }
+        
+        /* Cards in Right Section */
+        .card {
+            background-color: #000000ff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.08);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .card:hover { transform: translateY(-3px); }
+        .card h3 { margin: 0 0 15px; font-size: 20px; color: #fffbfbff; }
+
+        /* Buttons and Forms */
+        .btn {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .btn:hover { background-color: #28a745; }
+        .btn.ghost {
+            background-color: transparent;
+            color: #28a745;
+            border: 2px solid #28a745;
+        }
+        .btn.ghost:hover { background-color: #f0f2f5; }
+        textarea, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e6eef8;
+            margin-top: 5px;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        label { font-weight: 600; margin-top: 10px; display: block; }
+
+        /* Score Charts Grid */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .score-card {
+            background: #fdfdff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 6px 20px rgba(2,6,23,0.06);
+        }
+        .score-card .title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #fffcfcff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Dark Theme for Chart */
+        .chart-dark {
+            background: #1e1e1e;
+            border: 1px solid #333;
+        }
+        .chart-dark h3 { color: #fff; }
+
+        /* --- STYLES FOR PERFORMANCE GRAPH HEADER --- */
+        .performance-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .performance-icon {
+            width: 40px;
+            height: 40px;
+            filter: invert(1); /* Makes the icon white */
+        }
+        .performance-title {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+        }
+        .performance-subtitle {
+            margin: 0;
+            font-size: 1rem;
+            color: #ccc;
+        }
+        /* --- END STYLES --- */
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); z-index: 10000;
+            display: none; justify-content: center; align-items: center;
+            color: white; flex-direction: column;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3; border-top: 8px solid #28a745;
+            border-radius: 50%; width: 60px; height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        #loadingText { margin-top: 20px; font-size: 1.2em; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Custom Progress Line styles */
+        .progress-line { flex-grow: 1; height: 12px; background-color: #ddd; border-radius: 6px; overflow: hidden; position: relative; display: flex; align-items: center; }
+        .progress-bar-custom { height: 100%; border-radius: 6px; transition: width 0.5s ease-in-out; }
+        .progress-line-container { display: flex; align-items: center; margin-bottom: 12px; }
+        .progress-line-container .icon-png { width: 24px; height: 24px; margin-right: 12px; }
+        .score-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 10px; color: black; z-index: 1; }
+        .progress-bar-custom { height: 100%; border-radius: 6px; transition: width 0.5s ease-in-out; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .progress-text { font-size: 12px; font-weight: 600; margin-left: 8px; color: #fff; }
+        .score-label { font-weight: bold; color: black; font-size: 12px; width: 80px; }
+
+        @media (max-width: 768px) {
+            .wrap { flex-direction: column; }
+            .left { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p id="loadingText">Analyzing videos, please wait...</p>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">
+            <span style="color:#fff;">ProCricket</span><span style="color:#28a745;">Trials</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Registration</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">About us</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contact us</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Signup</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="wrap">
+    <aside class="left">
+        <a href="http://localhost/pro/coach/player.php" class="btn btn-sm btn-outline-light" style="margin-bottom: 15px;">
+            <i class="fas fa-arrow-left me-2"></i> Back
+        </a>
+        
+        <div class="image-container">
+            <img src="{{ url_for('static', filename=player.player_image_path) }}" alt="Player">
+        </div>
+
+        <h2 style="margin:15px 0 5px;">{{ player.name if player else 'Player Not Found' }}</h2>
+        <p>Role: {{ player.batting_type if player else 'N/A' }}</p>
+        <p style="margin-top:8px;">About: {{ player.province if player else 'N/A' }} — {{ player.region if player else 'N/A' }}.</p>
+        
+        {% if average_confidence is not none %}
+        <div class="status">Average Confidence:</div>
+        <div class="status-text" style="color:#fff;">
+            {{ "%.2f"|format(average_confidence) }}%
+        </div>
+        {% endif %}
+        {% if average_performance is not none %}
+        <div class="status">Average Performance:</div>
+        <div class="status-text" style="color:#fff;">
+            {{ "%.2f"|format(average_performance) }}%
+        </div>
+        {% endif %}
+        
+        <div class="status">Selection Status:</div>
+        <div class="status-text" style="color:{{ 'lightgreen' if selection else '#ff6b6b' if selection is not none else '#777' }}">
+            {% if selection is none %} — {% elif selection %} ✅ Selected {% else %} ❌ Not Selected {% endif %}
+        </div>
+        <div class="status">Results</div>
+        <p style="margin-top:6px; color:#fff;">{{ coach_comment if coach_comment else 'No comment yet.' }}</p>
+        
+    </aside>
+
+    <main class="right">
+        <div class="card">
+            <h3>Upload Exactly 6 Videos</h3>
+            <form id="analysisForm" method="POST" enctype="multipart/form-data" action="{{ url_for('player_report', player_id=player.id) }}">
+                <input type="file" name="videos" class="form-control" accept=".mp4,.avi,.mov,.mkv" multiple required>
+                <div style="margin-top:12px">
+                    <button class="btn" type="submit">Analyze & Generate Report</button>
+                    <button class="btn ghost" type="reset" onclick="location.href='{{ url_for('player_report', player_id=player.id) }}'" style="margin-left:8px">Reset</button>
+                </div>
+            </form>
+            <div style="margin-top:12px;color:white;font-size:13px">Tip: Hold Ctrl (or Shift) to select 6 files at once, then click Analyze.</div>
+        </div>
+
+        {% if results %}
+
+
+        <div class="card chart-dark">
+            <h3>Confidence Trend</h3>
+            <canvas id="confidenceLineChart" style="width:100%; height:200px;"></canvas>
+        </div>
+
+                <div class="container" style="padding: 0;">
+            <div class="card chart-dark">
+                <div class="performance-header">
+                    <img id="performanceIcon" src="" alt="Performance Level Icon" class="performance-icon">
+                    <div>
+                        <h4 class="performance-title">Body Scores Level</h4>
+                        <p id="performanceMessage" class="performance-subtitle"></p>
+                    </div>
+                </div>
+                <div style="position: relative; height: 300px;">
+                     <canvas id="performanceGraph"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Body-Part Scores (Per Video)</h3>
+            <div id="scoresContainer" class="score-grid"></div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h3>Coach Evaluation</h3>
+            <label style="color:white" for="rating">Rating</label>
+            <select id="rating" class="form-select">
+                <option>Excellent</option>
+                <option>Good</option>
+                <option>Average</option>
+                <option>Poor</option>
+            </select>
+            <label style="color:white" for="comment">Comments</label>
+            <textarea id="comment" class="form-control" placeholder="Write coach notes..."></textarea>
+            <div style="margin-top:15px; text-align:right">
+                <button class="btn" id="saveEval">Save Evaluation</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const CLASS_NAMES = {{ class_names|tojson }};
+    const PLAYER_ID = {{ player.id | tojson }};
+    let confidenceLineChart;
+
+    document.getElementById('analysisForm').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    });
+
+    {% if results %}
+    const results = {{ results|tojson }};
+    
+    // --- SCRIPT FOR NEW PERFORMANCE GRAPH ---
+
+    // 1. Calculate individual video scores (needed for the line itself)
+    const performanceScores = results.map(r => {
+        const scores = r.scores || {};
+        const bodyParts = ["Head", "Shoulder", "Hands", "Hips", "Feet"];
+        let total = 0;
+        let count = 0;
+        bodyParts.forEach(part => {
+            if (scores[part] !== undefined) {
+                total += scores[part];
+                count++;
+            }
+        });
+        const averageOutOf10 = count > 0 ? total / count : 0;
+        return (averageOutOf10 / 10) * 100; // Convert to percentage
+    });
+
+    // --- **MODIFIED LINE** ---
+    // Get the overall average directly from the backend to ensure consistency
+    const overallAverage = {{ average_performance|default(0)|tojson }};
+
+    // 2. Determine performance level, colors, and messages based on the backend's average
+    let performanceConfig = {};
+    if (overallAverage >= 90) { // Skilled Player
+        performanceConfig = {
+            lineColor: 'rgba(75, 255, 132, 1)',
+            glowColor: 'rgba(75, 255, 132, 0.7)',
+            gradientStart: 'rgba(75, 255, 132, 0.4)',
+            gradientEnd: 'rgba(75, 255, 132, 0)'
+        };
+    } else if (overallAverage >= 70) { // Intermediate Player
+        performanceConfig = {
+            lineColor: 'rgba(255, 206, 86, 1)',
+            glowColor: 'rgba(255, 206, 86, 0.7)',
+            gradientStart: 'rgba(255, 206, 86, 0.4)',
+            gradientEnd: 'rgba(255, 206, 86, 0)'
+        };
+    } else { // Beginner Player
+        performanceConfig = {
+            lineColor: 'rgba(255, 99, 132, 1)',
+            glowColor: 'rgba(255, 99, 132, 0.7)',
+            gradientStart: 'rgba(255, 99, 132, 0.4)',
+            gradientEnd: 'rgba(255, 99, 132, 0)'
+        };
+    }
+
+    // 3. Update the header elements
+    document.getElementById('performanceIcon').src = "{{ url_for('static', filename='icons/performance.png') }}";
+    document.getElementById('performanceMessage').innerText = performanceConfig.message;
+
+    // 4. Create the Chart.js graph
+    const ctxPerf = document.getElementById('performanceGraph').getContext('2d');
+    
+    // Custom plugin for the glow effect
+    const glowPlugin = {
+        id: 'glow',
+        beforeDraw: (chart) => {
+            const { ctx } = chart;
+            ctx.save();
+            ctx.shadowColor = performanceConfig.glowColor;
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        },
+        afterDraw: (chart) => {
+            chart.ctx.restore();
+        }
+    };
+
+    const gradientFill = ctxPerf.createLinearGradient(0, 0, 0, 300);
+    gradientFill.addColorStop(0, performanceConfig.gradientStart);
+    gradientFill.addColorStop(0.9, performanceConfig.gradientEnd);
+    
+    new Chart(ctxPerf, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: results.length }, (_, i) => `Video ${i + 1}`),
+            datasets: [{
+                data: performanceScores,
+                borderColor: performanceConfig.lineColor,
+                backgroundColor: gradientFill,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: performanceConfig.lineColor,
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: { label: (c) => `Performance: ${c.parsed.y.toFixed(1)}%` }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#ccc' }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: {
+                        color: '#ccc',
+                        stepSize: 20,
+                        callback: (value) => `${value}%`
+                    }
+                }
+            }
+        },
+        plugins: [glowPlugin]
+    });
+    // --- END SCRIPT FOR PERFORMANCE GRAPH ---
+
+
+    // Use the predicted shot name for chart labels
+    const combinedLabels = results.map(r => r.predicted);
+    const combinedConfidences = results.map(r => Math.max(...r.probs));
+    const combinedPredictedClasses = results.map(r => r.predicted);
+
+    // Confidence line chart (Dark Theme)
+    const ctxLine = document.getElementById('confidenceLineChart').getContext('2d');
+    const colorMap = {'Cover Drive': '#4CAF50', 'Lofted': '#2196F3', 'Square Cut': '#FFC107', 'Pull': '#FF5722', 'Straight Drive': '#9C27B0'};
+    const pointColors = combinedPredictedClasses.map(p => colorMap[p] || '#607D8B');
+
+    // Create a glow plugin for the confidence chart
+    const confidenceGlowPlugin = {
+        id: 'confidenceGlow',
+        beforeDraw: (chart) => {
+            const { ctx } = chart;
+            ctx.save();
+            ctx.shadowColor = 'rgba(59, 224, 98, 0.7)'; // Glow color
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        },
+        afterDraw: (chart) => {
+            chart.ctx.restore();
+        }
+    };
+
+    // Create a gradient for the fill color
+    const confidenceGradient = ctxLine.createLinearGradient(0, 0, 0, 200);
+    confidenceGradient.addColorStop(0, 'rgba(40, 167, 69, 0.4)');
+    confidenceGradient.addColorStop(1, 'rgba(40, 167, 69, 0)');
+
+    confidenceLineChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: combinedLabels,
+            datasets: [{
+                label: 'Confidence',
+                data: combinedConfidences,
+                borderColor: '#2bce2dff',
+                backgroundColor: confidenceGradient,
+                fill: true,
+                tension: 0.2,
+                pointRadius: 6, pointHoverRadius: 8,
+                pointBackgroundColor: pointColors,
+                pointBorderColor: '#ffffffff', pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: { duration: 2000, easing: 'easeOutQuart' },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff',
+                    callbacks: { label: (context) => `Confidence: ${(context.parsed.y * 100).toFixed(2)}%` }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    title: { display: true, text: 'Predicted Shots', color: '#ccc' },
+                    ticks: { color: '#ccc' }
+                },
+                y: {
+                    beginAtZero: true, max: 1,
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    title: { display: true, text: 'Confidence Rate', color: '#ccc' },
+                    ticks: { color: '#ccc', callback: (value) => `${(value * 100).toFixed(0)}%` }
+                }
+            }
+        },
+        plugins: [confidenceGlowPlugin] // Add the new glow plugin
+    });
+
+    // Render per-video score progress lines
+    const scoresContainer = document.getElementById('scoresContainer');
+    const scoreColorMap = {
+        "Head": '#2196F3', "Shoulder": '#d53232ff', "Hands": '#FFC107',
+        "Hips": '#9C27B0', "Feet": '#FF5722', "Performance": '#3ad909ff'
+    };
+    const scoreIcons = {
+        "Head": "{{ url_for('static', filename='icons/head.png') }}",
+        "Shoulder": "{{ url_for('static', filename='icons/shoulder.png') }}",
+        "Hands": "{{ url_for('static', filename='icons/hands.png') }}",
+        "Hips": "{{ url_for('static', filename='icons/hips.png') }}",
+        "Feet": "{{ url_for('static', filename='icons/feet.png') }}",
+        "Performance": "{{ url_for('static', filename='icons/performance.png') }}"
+    };
+
+    results.forEach((r, i) => {
+        const card = document.createElement('div');
+        card.className = 'score-card';
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.innerHTML = `<span style="color:black">Video ${i + 1}: ${r.predicted}</span><span style="font-size:12px;color:#777">(${(Math.max(...r.probs)*100).toFixed(1)}%)</span>`;
+        card.appendChild(title);
+
+        const progressContainer = document.createElement('div');
+        progressContainer.style.marginTop = '15px';
+        const order = ["Head", "Shoulder", "Hands", "Hips", "Feet", "Performance"];
+        order.forEach(k => {
+            const v = r.scores && r.scores[k] !== undefined ? r.scores[k] : 0;
+            const scorePercent = (v / 10) * 100;
+
+            const lineContainer = document.createElement('div');
+            lineContainer.className = 'progress-line-container';
+
+            const scoreLabel = document.createElement('div');
+            scoreLabel.className = 'score-label';
+            scoreLabel.innerText = k;
+            lineContainer.appendChild(scoreLabel);
+
+            const icon = document.createElement('img');
+            icon.src = scoreIcons[k];
+            icon.alt = `${k} icon`;
+            icon.className = 'icon-png';
+            lineContainer.appendChild(icon);
+
+            const progressLine = document.createElement('div');
+            progressLine.className = 'progress-line';
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar-custom';
+            progressBar.style.backgroundColor = scoreColorMap[k];
+            progressBar.style.width = `${scorePercent}%`;
+
+            const scoreText = document.createElement('div');
+            scoreText.className = 'score-text';
+            scoreText.innerText = `${parseFloat(v).toFixed(0)}/10`;
+
+            progressLine.appendChild(progressBar);
+            progressLine.appendChild(scoreText);
+            
+            lineContainer.appendChild(progressLine);
+            progressContainer.appendChild(lineContainer);
+        });
+        card.appendChild(progressContainer);
+        scoresContainer.appendChild(card);
+    });
+    {% endif %}
+
+    // Save evaluation
+    document.getElementById('saveEval').addEventListener('click', async () => {
+        const payload = {
+            player_id: PLAYER_ID,
+            rating: document.getElementById('rating').value,
+            comment: document.getElementById('comment').value
+        };
+
+        if (typeof confidenceLineChart !== 'undefined' && confidenceLineChart) {
+            payload.lineChartImage = confidenceLineChart.toBase64Image();
+        }
+        payload.scoreCharts = [];
+
+        try {
+            const r = await fetch('/save_evaluation', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await r.json();
+            if (r.ok && data.status === 'ok') {
+                alert('Evaluation and report saved successfully!');
+                if (data.pdf_path) {
+                    window.open('/' + data.pdf_path, '_blank');
+                } else {
+                    window.location.reload();
+                }
+            } else {
+                alert(`Failed to save evaluation: ${data.message || 'Unknown error'}`);
+            }
+        } catch(e) {
+            console.error('Error saving evaluation:', e);
+            alert('An error occurred while saving the evaluation.');
+        }
+    });
+</script>
+</body>
+</html>
