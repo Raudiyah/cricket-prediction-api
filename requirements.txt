@@ -4,7 +4,7 @@ torch
 torchvision
 numpy
 opencv-python-headless
-mediapipe==0.10.9
+mediapipe
 mysql-connector-python
 reportlab
 gdown
