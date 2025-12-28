@@ -1,0 +1,10 @@
+flask
+flask-cors
+torch
+torchvision
+numpy
+opencv-python-headless
+mediapipe
+mysql-connector-python
+reportlab
+gdown
