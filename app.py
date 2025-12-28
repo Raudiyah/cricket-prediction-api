@@ -24,8 +24,10 @@ from reportlab.lib.units import inch
 from reportlab.lib.colors import Color
 
 # Pose library
+# Sahi tarika jo har version pe chalta hai
 import mediapipe as mp
-from mediapipe.python.solutions import pose as mp_pose
+mp_pose = mp.solutions.pose
+mp_drawing = mp.solutions.drawing_utils
 import math
 
 # ---------- Config ----------
@@ -669,5 +671,6 @@ def save_eval():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
