@@ -661,6 +661,6 @@ def save_eval():
     return jsonify({"status": "ok", "pdf_path": pdf_path})
 
 if __name__ == '__main__':
-    # Render ke liye host 0.0.0.0 aur Port dynamic hona chahiye
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+
