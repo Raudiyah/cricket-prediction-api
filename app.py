@@ -25,17 +25,11 @@ from reportlab.lib.colors import Color
 
 # Pose library
 import mediapipe as mp
+
+# Error se bachne ke liye direct assignment
+mp_pose = mp.solutions.pose
+mp_drawing = mp.solutions.drawing_utils
 import math
-
-# Direct access to solutions to avoid AttributeError
-try:
-    mp_pose = mp.solutions.pose
-    mp_drawing = mp.solutions.drawing_utils
-except AttributeError:
-    # Fallback for some server environments
-    import mediapipe.python.solutions.pose as mp_pose
-    import mediapipe.python.solutions.drawing_utils as mp_drawing
-
 
 # ---------- Config ----------
 UPLOAD_FOLDER = "static/uploads"
@@ -680,6 +674,7 @@ def save_eval():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
 
