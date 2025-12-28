@@ -24,10 +24,9 @@ from reportlab.lib.units import inch
 from reportlab.lib.colors import Color
 
 # Pose library
-# Sahi tarika jo har version pe chalta hai
 import mediapipe as mp
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
+import mediapipe.python.solutions.pose as mp_pose
+import mediapipe.python.solutions.drawing_utils as mp_drawing
 import math
 
 # ---------- Config ----------
@@ -49,6 +48,28 @@ CLASS_NAMES = ["Cover Drive", "Lofted", "Square Cut", "Pull", "Straight Drive"]
 NUM_FRAMES = 16
 FRAME_SIZE = 112
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+# ---------- Model ----------
+def make_model(num_classes):
+    model = torchvision.models.video.r3d_18(weights=None) # pretrained=False ki jagah weights=None
+    in_features = model.fc.in_features
+    model.fc = nn.Linear(in_features, num_classes)
+    return model
+
+
+
+try:
+    model = make_model(len(CLASS_NAMES))
+    state = torch.load(MODEL_PATH, map_location=DEVICE)
+    if isinstance(state, dict) and not isinstance(state, torch.nn.Module):
+        model.load_state_dict(state)
+    else:
+        model = state
+    model = model.to(DEVICE)
+    model.eval()
+except Exception as e:
+    print(f"Error loading model: {e}. The app will run, but predictions may fail.")
+    model = None
 
 
 # ---------- Model Download & Load ----------
@@ -90,27 +111,7 @@ DB_CONFIG = {
     'database': 'your_external_db_name'
 }
 
-# ---------- Model ----------
-def make_model(num_classes):
-    model = torchvision.models.video.r3d_18(weights=None) # pretrained=False ki jagah weights=None
-    in_features = model.fc.in_features
-    model.fc = nn.Linear(in_features, num_classes)
-    return model
 
-
-
-try:
-    model = make_model(len(CLASS_NAMES))
-    state = torch.load(MODEL_PATH, map_location=DEVICE)
-    if isinstance(state, dict) and not isinstance(state, torch.nn.Module):
-        model.load_state_dict(state)
-    else:
-        model = state
-    model = model.to(DEVICE)
-    model.eval()
-except Exception as e:
-    print(f"Error loading model: {e}. The app will run, but predictions may fail.")
-    model = None
 
 # ---------- Transforms & helpers ----------
 transform = transforms.Compose([
@@ -671,6 +672,7 @@ def save_eval():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
 
